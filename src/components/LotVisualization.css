@@ -1,0 +1,87 @@
+.lot-visualization {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.lot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.lot-legend {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.bg-free { background-color: var(--spot-free); border: 1px solid var(--success-color); }
+.bg-occupied { background-color: var(--spot-occupied); }
+.bg-danger { background-color: var(--danger-color); }
+
+.lot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 1rem;
+}
+
+.spot {
+  position: relative;
+  height: 120px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+  overflow: hidden;
+}
+
+.spot-id {
+  position: absolute;
+  top: 5px;
+  left: 8px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  opacity: 0.6;
+}
+
+.spot-car {
+  transition: color 0.3s;
+}
+
+.car-occupied {
+  color: var(--warning-color);
+}
+
+.car-danger {
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .lot-grid {
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .spot {
+    height: 80px;
+  }
+}
