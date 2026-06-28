@@ -20,7 +20,7 @@ export default function PaymentModal({ spot, onClose }) {
 
   const amountDue = calculateFee();
 
-  const handlePayment = (method) => {
+  const handlePayment = (_method) => {
     setIsProcessing(true);
     // Simulate network request
     setTimeout(() => {

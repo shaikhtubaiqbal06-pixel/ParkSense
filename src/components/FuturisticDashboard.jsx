@@ -8,6 +8,12 @@ export default function FuturisticDashboard() {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setLastUpdated(new Date());
+    setTimeout(() => setIsRefreshing(false), 1000);
+  };
+
   // Auto-refresh simulation
   useEffect(() => {
     const interval = setInterval(() => {
@@ -15,12 +21,6 @@ export default function FuturisticDashboard() {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
-
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    setLastUpdated(new Date());
-    setTimeout(() => setIsRefreshing(false), 1000);
-  };
 
   // AI Prediction Logic
   const occupancyRate = stats.total > 0 ? (stats.occupied / stats.total) * 100 : 0;

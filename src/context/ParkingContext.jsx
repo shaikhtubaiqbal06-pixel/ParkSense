@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const ParkingContext = createContext();
 
@@ -28,61 +28,64 @@ const generateInitialSpots = (count) => {
   });
 };
 
+const initialSpots = generateInitialSpots(100);
+
+const initialActivityLog = [
+  { id: 'log-1', type: 'Payment', description: 'Spot 12 Checked Out', amount: 150, timestamp: new Date(Date.now() - 3600000).toLocaleTimeString() }
+];
+
+const initialSpotHistory = {
+  15: [
+    { licensePlate: 'XYZ-1234', duration: '2h 15m', timestamp: new Date(Date.now() - 86400000).toLocaleString() },
+    { licensePlate: 'XYZ-1234', duration: '1h 30m', timestamp: new Date(Date.now() - 172800000).toLocaleString() }
+  ],
+  42: [
+    { licensePlate: 'XYZ-1234', duration: '4h 0m', timestamp: new Date(Date.now() - 432000000).toLocaleString() }
+  ]
+};
+
+const getMockRevenue = (timeStr) => {
+  if (!timeStr) return 0;
+  const hours = parseInt(timeStr.split('h')[0]) || 0;
+  const mins = parseInt(timeStr.split(' ')[1]?.split('m')[0]) || 0;
+  const totalHours = hours + (mins / 60);
+  return totalHours > 0 ? Math.max(50, totalHours * 50) : 0;
+};
+
+const generateInitialVehicleLog = () => {
+  return [
+    { id: 'vlog-1', licensePlate: 'ABC-9999', spotId: 12, arrivedAt: new Date(Date.now() - 7200000).toLocaleTimeString(), leftAt: new Date(Date.now() - 3600000).toLocaleTimeString(), duration: '1h 0m', revenue: 150, status: 'Left' },
+    { id: 'vlog-2', licensePlate: 'XYZ-1234', spotId: 15, arrivedAt: new Date(Date.now() - 14400000).toLocaleTimeString(), leftAt: new Date(Date.now() - 6300000).toLocaleTimeString(), duration: '2h 15m', revenue: 300, status: 'Left' },
+    // Add current parked cars to the log
+    ...initialSpots.filter(s => s.status !== SPOT_TYPES.FREE).map(s => ({
+      id: `vlog-init-${s.id}`,
+      licensePlate: s.licensePlate,
+      spotId: s.id,
+      arrivedAt: new Date(Date.now() - Math.floor(Math.random() * 10000000)).toLocaleTimeString(),
+      leftAt: '-',
+      duration: s.timeParked,
+      revenue: getMockRevenue(s.timeParked), // Accrued revenue
+      status: 'Parked'
+    }))
+  ];
+};
+
 export const ParkingProvider = ({ children }) => {
-  const [spots, setSpots] = useState(() => generateInitialSpots(100));
-  const [alerts, setAlerts] = useState([]);
-  const [revenue, setRevenue] = useState(25000); // Starting mock revenue in INR
-  const [activityLog, setActivityLog] = useState([
-    { id: 'log-1', type: 'Payment', description: 'Spot 12 Checked Out', amount: 150, timestamp: new Date(Date.now() - 3600000).toLocaleTimeString() }
-  ]);
-  const [spotHistory, setSpotHistory] = useState({
-    15: [
-      { licensePlate: 'XYZ-1234', duration: '2h 15m', timestamp: new Date(Date.now() - 86400000).toLocaleString() },
-      { licensePlate: 'XYZ-1234', duration: '1h 30m', timestamp: new Date(Date.now() - 172800000).toLocaleString() }
-    ],
-    42: [
-      { licensePlate: 'XYZ-1234', duration: '4h 0m', timestamp: new Date(Date.now() - 432000000).toLocaleString() }
-    ]
-  });
-
-  const [vehicleLog, setVehicleLog] = useState(() => {
-    // Helper to extract numeric hours for mock revenue
-    const getMockRevenue = (timeStr) => {
-      if (!timeStr) return 0;
-      const hours = parseInt(timeStr.split('h')[0]) || 0;
-      const mins = parseInt(timeStr.split(' ')[1]?.split('m')[0]) || 0;
-      const totalHours = hours + (mins / 60);
-      return totalHours > 0 ? Math.max(50, totalHours * 50) : 0;
-    };
-
-    return [
-      { id: 'vlog-1', licensePlate: 'ABC-9999', spotId: 12, arrivedAt: new Date(Date.now() - 7200000).toLocaleTimeString(), leftAt: new Date(Date.now() - 3600000).toLocaleTimeString(), duration: '1h 0m', revenue: 150, status: 'Left' },
-      { id: 'vlog-2', licensePlate: 'XYZ-1234', spotId: 15, arrivedAt: new Date(Date.now() - 14400000).toLocaleTimeString(), leftAt: new Date(Date.now() - 6300000).toLocaleTimeString(), duration: '2h 15m', revenue: 300, status: 'Left' },
-      // Add current parked cars to the log
-      ...generateInitialSpots(100).filter(s => s.status !== SPOT_TYPES.FREE).map(s => ({
-        id: `vlog-init-${s.id}`,
-        licensePlate: s.licensePlate,
-        spotId: s.id,
-        arrivedAt: new Date(Date.now() - Math.floor(Math.random() * 10000000)).toLocaleTimeString(),
-        leftAt: '-',
-        duration: s.timeParked,
-        revenue: getMockRevenue(s.timeParked), // Accrued revenue
-        status: 'Parked'
-      }))
-    ];
-  });
-
-  useEffect(() => {
-    const initialAlerts = spots
+  const [spots, setSpots] = useState(initialSpots);
+  const [alerts, setAlerts] = useState(() => 
+    initialSpots
       .filter(s => s.status === SPOT_TYPES.ENCROACHED)
       .map(s => ({
         id: `alert-${s.id}-${Date.now()}`,
         spotId: s.id,
         time: 'Just now',
         type: s.spotType === 'Handicap' ? 'Unauthorized Handicap Use' : 'Out of Bounds'
-      }));
-    setAlerts(initialAlerts);
-  }, []);
+      }))
+  );
+  const [revenue, setRevenue] = useState(25000); // Starting mock revenue in INR
+  const [activityLog, setActivityLog] = useState(initialActivityLog);
+  const [spotHistory, setSpotHistory] = useState(initialSpotHistory);
+  const [vehicleLog, setVehicleLog] = useState(() => generateInitialVehicleLog());
 
   const addLog = (type, description, amount) => {
     const newLog = {

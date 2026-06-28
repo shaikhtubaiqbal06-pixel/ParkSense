@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, DollarSign, Activity, Car, LogIn, LogOut } from 'lucide-react';
+import { Clock, Activity, Car, LogIn, LogOut } from 'lucide-react';
 import { useParking } from '../context/ParkingContext';
 import './HistoryPage.css';
 

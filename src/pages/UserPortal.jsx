@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useParking } from '../context/ParkingContext';
 import loginBg from '../assets/login-bg.png';
 import './UserPortal.css';
@@ -7,7 +6,6 @@ import './UserPortal.css';
 const UserPortal = () => {
   const [licensePlateInput, setLicensePlateInput] = useState('');
   const [loggedInPlate, setLoggedInPlate] = useState(null);
-  const navigate = useNavigate();
   const { spots, spotHistory } = useParking();
 
   const handleLogin = (e) => {
